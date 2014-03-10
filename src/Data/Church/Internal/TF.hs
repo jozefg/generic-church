@@ -1,6 +1,8 @@
-{-# LANGUAGE TypeFamilies, TypeOperators, FlexibleContexts, UndecidableInstances #-}
+{-# LANGUAGE TypeFamilies, TypeOperators,        FlexibleContexts #-}
+{-# LANGUAGE DataKinds,    UndecidableInstances, PolyKinds        #-}
 module Data.Church.Internal.TF where
 import GHC.Generics
+import Data.Proxy
 
 -- | This is isomorphic to @()@ with a more interesting
 -- kind. It's used to annotate the end of pseudolists formed
@@ -54,3 +56,23 @@ instance (GStripMeta (l p), GStripMeta (r p),
 -- leaves in GHC.Generics
 type family StripK v
 type instance StripK (K1 a t p) = t
+
+type family Head (xs :: [k]) :: k
+type instance Head (x ': xs) = x
+type family Tail (xs :: [k]) :: [k]
+type instance Tail (x ': xs) = xs
+
+pHead :: Proxy xs -> Proxy (Head xs)
+pHead = reproxy
+pTail :: Proxy xs -> Proxy (Tail xs)
+pTail = reproxy
+
+-- | Append for type level lists
+type family Append (xs :: [k]) (ys :: [k]) :: [k]
+type instance Append '[] ys = ys
+type instance Append (x ': xs) ys = x ': Append xs ys
+
+-- | Reverse for type level lists                      
+type family Reverse (xs :: [k]) :: [k]
+type instance Reverse '[] = '[]
+type instance Reverse (x ': xs) = Append (Reverse xs) (x ': '[])

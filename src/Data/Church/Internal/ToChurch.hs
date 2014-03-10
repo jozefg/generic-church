@@ -95,6 +95,3 @@ instance (GListProd (l p) (ListTerm ()), GChurchProd (ToListProd (l p) (ListTerm
   elim p (R1 r) = \_ -> elim p r
 instance GChurchSum (ListTerm p) r where
   elim _ _ = error "Malformed generic instance"
-
-from' :: Generic a => a -> Rep a ()
-from' = from

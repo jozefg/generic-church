@@ -20,6 +20,9 @@ toChurch :: forall a r.
             a -> Church a r
 toChurch = elim p . flip toList (ListTerm :: ListTerm ()) . Just . stripMeta . from'
   where p = Proxy :: Proxy r
+        from' :: Generic a => a -> Rep a ()
+        from' = from
+
 
 -- | Create a value from it's church representation. Again, the constraints should be mostly ignored.
 -- This method may require an explicit signature.
