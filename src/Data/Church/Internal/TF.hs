@@ -49,3 +49,8 @@ instance (GStripMeta (l p), GStripMeta (r p),
          GStripMeta ((:+:) l r p) where
   stripMeta (L1 l) = L1 $ stripMeta l
   stripMeta (R1 r) = R1 $ stripMeta r
+
+-- | Strip away the extra information that annotates
+-- leaves in GHC.Generics
+type family StripK v
+type instance StripK (K1 a t p) = t
