@@ -1,4 +1,4 @@
-{-# LANGUAGE ScopedTypeVariables, FlexibleContexts #-}
+{-# LANGUAGE ScopedTypeVariables, FlexibleContexts, DataKinds #-}
 module Data.Church (toChurch, fromChurch, Church) where
 
 import Data.Church.Internal.ToChurch
