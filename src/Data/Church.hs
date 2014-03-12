@@ -1,5 +1,24 @@
 {-# LANGUAGE ScopedTypeVariables, FlexibleContexts, DataKinds #-}
 {-# LANGUAGE DefaultSignatures                                #-}
+-- |   This module provides two functions, @'toChurch'@ and @'fromChurch'@. These form
+--   an isomorphism between a type and its church representation of a type
+--  To use this, simply define an empty instance of @'ChurchRep'@ for a type with a
+--  'Generic' instance and defaulting magic will take care of the rest. For example
+--
+-- >  {-# LANGUAGE DeriveGeneric #-}
+-- >  data MyType = Foo Int Bool | Bar | Baz Char
+-- >              deriving(Generic, Show)
+-- > 
+-- >  instance ChurchRep MyType
+-- 
+--  Then if we fire up GHCi
+-- 
+-- >>>  toChurch (Foo 1 True) (\int bool -> int + 1) 0 (const 1)
+-- 2
+-- 
+-- >>> fromChurch (\foo bar baz -> bar) :: MyType
+-- Bar
+
 module Data.Church (Church, ChurchRep(toChurch, fromChurch)) where
 
 import Data.Church.Internal.ToChurch

@@ -1,26 +1,15 @@
 name:                generic-church
 version:             0.1.0.0
 synopsis:            Automatically convert Generic instances to and from church representations
-description:
-  This package provides two functions, @'toChurch'@ and @'fromChurch'@. These form
-  an isomorphism between a type and its church representation of a type
-  .
-  To use this, simply define an empty instance of @'ChurchRep'@ for a type with a
-  'Generic' instance and defaulting magic will take care of the rest. For example
-  .
-  > {-# LANGUAGE DeriveGeneric #-}
-  > data MyType = Foo Int Bool | Bar | Baz Char
-  >             deriving(Generic, Show)
-  >
-  > instance ChurchRep MyType
-  .
-  Then if we fire up GHCi
-  .
-  > Data.Char> toChurch (Foo 1 True) (\int bool -> if bool then int else int + 1) 0 ord
-  >      2
-  > Data.Char> fromChurch (\foo bar baz -> bar) :: MyType
-  >      Bar
-  fizz 
+description:         This package provides a type to generically construct the type of the church
+                     representation.
+
+                     Additionally, it provides a type class @ChurchRep@ which contains
+                     a pair of functions for mapping back and forth betweeen the two
+                     representations.
+                     .
+                     Both the type and the @ChurchRep@ instance are be automatically constructed
+                     for all types with a @Generic@ instance.
 license:             MIT
 license-file:        LICENSE
 author:              Danny Gratzer
@@ -28,11 +17,15 @@ maintainer:          danny.gratzer@gmail.com
 category:            Generics
 build-type:          Simple
 cabal-version:       >=1.10
+source-repository head
+  type:                mercurial
+  location:            http://bitbucket.org/jozefg/generic-church
 library
         hs-source-dirs:      src
         exposed-modules:     Data.Church
         other-modules:       Data.Church.Internal.TF,
-                             Data.Church.Internal.ToChurch
+                             Data.Church.Internal.ToChurch,
+                             Data.Church.Internal.FromChurch
   build-depends:       base >=4.6 && <4.7, tagged
   default-language:    Haskell2010
 Test-Suite test-generic-church
