@@ -5,7 +5,7 @@ description:         This package provides a type to generically construct the t
                      representation.
 
                      Additionally, it provides a type class @ChurchRep@ which contains
-                     a pair of functions for mapping back and forth betweeen the two
+                     a pair of functions for mapping back and forth between the two
                      representations.
                      .
                      Both the type and the @ChurchRep@ instance are be automatically constructed
