@@ -29,9 +29,9 @@ prods :: Test
 prods = testGroup "Product Types" [testCase "(a, b)" prod2
                                   ,testCase "(a, b, c)" prod3
                                   ,testCase "(a, b, c, d)" prod4]
-  where prod2 = 3  @?= toChurch (1, 2)      (\a b     -> a + b             :: Int)
-        prod3 = 6  @?= toChurch (1, 2, 3)   (\a b c   -> a + b + c         :: Int)
-        prod4 = 10 @?= toChurch (1, 2, 3, 4)(\a b c d -> a + b + c + d     :: Int)
+  where prod2 = 3  @?= toChurch (1, 2)      (\a b     -> a + b         :: Int)
+        prod3 = 6  @?= toChurch (1, 2, 3)   (\a b c   -> a + b + c     :: Int)
+        prod4 = 10 @?= toChurch (1, 2, 3, 4)(\a b c d -> a + b + c + d :: Int)
 
 afew :: Test
 afew = testGroup "Mixed, AFew" [testCase "AFew: C1" c1

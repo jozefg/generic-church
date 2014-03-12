@@ -1,6 +1,26 @@
 name:                generic-church
 version:             0.1.0.0
 synopsis:            Automatically convert Generic instances to and from church representations
+description:
+  This package provides two functions, @'toChurch'@ and @'fromChurch'@. These form
+  an isomorphism between a type and its church representation of a type
+  .
+  To use this, simply define an empty instance of @'ChurchRep'@ for a type with a
+  'Generic' instance and defaulting magic will take care of the rest. For example
+  .
+  > {-# LANGUAGE DeriveGeneric #-}
+  > data MyType = Foo Int Bool | Bar | Baz Char
+  >             deriving(Generic, Show)
+  >
+  > instance ChurchRep MyType
+  .
+  Then if we fire up GHCi
+  .
+  > Data.Char> toChurch (Foo 1 True) (\int bool -> if bool then int else int + 1) 0 ord
+  >      2
+  > Data.Char> fromChurch (\foo bar baz -> bar) :: MyType
+  >      Bar
+  fizz 
 license:             MIT
 license-file:        LICENSE
 author:              Danny Gratzer
