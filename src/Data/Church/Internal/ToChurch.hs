@@ -14,12 +14,15 @@ type instance ChurchProd (U1 p)        c = c
 type instance ChurchProd ((:*:) l r p) c = ChurchProd (l p) (ChurchProd (r p) c)
 type instance ChurchProd (ListTerm p)  c = c
 
-
+-- | Reorder a product type into a list rather than
+-- a balanced tree
 type family ToListProd v rest
 type instance ToListProd ((:*:) l r' p) r = ToListProd (l p) (ToListProd (r' p) r)
 type instance ToListProd (K1 a t p)     r = (K1 a t     :*: WithoutParam r) p
 type instance ToListProd (U1 p)         r = U1 p
 
+-- | Given a product type and a tail, reorder the product type
+-- into a list according to 'ToListProd'.
 class GListProd a r where
   toListProd :: a -> r -> ToListProd a r
 instance (WithoutParam r) p ~ r => GListProd (U1 p) r where
@@ -28,6 +31,8 @@ instance (WithoutParam r) p ~ r => GListProd (K1 a t p) r where
   toListProd = (:*:)
 instance (GListProd (l p) (ToListProd (r' p) r), GListProd (r' p) r) => GListProd ((:*:) l r' p) r where
   toListProd (l :*: r) rest = toListProd l (toListProd r rest)
+
+-- | Eliminate a product type
 class GChurchProd a where
   prod :: Proxy r -> a -> ChurchProd a r -> r -- Proxy needed for GChurchSum
 instance GChurchProd (U1 p) where
@@ -39,12 +44,16 @@ instance GChurchProd (r p) => GChurchProd ((:*:) (K1 a t) r p) where
 instance GChurchProd (ListTerm p) where
   prod _ _ f = f
 
+-- | Reorder a sum type into a list rather than a balanced
+-- tree of '(:+:)'s.
 type family ToList v rest
 type instance ToList ((:+:) l r' p) r = ToList (l p) (ToList (r' p) r)
 type instance ToList (K1 a t p)     r = (K1 a t     :+: WithoutParam r) p
 type instance ToList ((:*:) l r' p) r = ((l :*: r') :+: WithoutParam r) p
 type instance ToList (U1 p)         r = (U1         :+: WithoutParam r) p
 
+-- | Given an optional sum type and a tail, reorder the
+-- sum type into a list like structure.
 class GList a r where
   toList :: Maybe a -> r -> ToList a r
 instance (WithoutParam r) p ~ r => GList (U1 p) r where
@@ -70,11 +79,15 @@ instance (GList (l p) (ToList (r' p) r),
           rNot :: forall l r p. Maybe ((:+:) l r p) -> Maybe (r p)
           rNot _ = Nothing
 
-
+-- | The actual church representation of a type
+-- once it's been properly reordered.
 type family ChurchSum v c
 type instance ChurchSum ((:+:) l r p) c = ChurchProd (ToListProd (l p) (ListTerm ())) c -> ChurchSum (r p) c
 type instance ChurchSum (ListTerm p) c  = c
 
+-- | An odd version of `const` which will swallow
+-- all arguments to a church representation and return
+-- a value previously given to it.
 class Swallow a where
   swallow :: Proxy a -> c -> ChurchSum a c
 instance Swallow (ListTerm p) where
@@ -84,6 +97,7 @@ instance Swallow (r p) => Swallow ((:+:) l r p) where
     where right :: forall l r p. Proxy ((:+:) l r p) -> Proxy (r p)
           right _ = Proxy
 
+-- | Transform a reordered sum value into a church representation.
 class GChurchSum a r where
   elim :: Proxy r -> a -> ChurchSum a r -- Proxy because type inference is stubborn
 instance (GListProd (l p) (ListTerm ()), GChurchProd (ToListProd (l p) (ListTerm ())),
