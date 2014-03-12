@@ -51,3 +51,17 @@ class ChurchRep a where
               Church a (Rep a ()) -> a
   fromChurch c = to (build p c :: Rep a ())
     where p = Proxy :: Proxy (MakePaths (Rep a ()) '[] '[])
+
+-- And now a ton of instances
+instance ChurchRep Bool	 
+instance ChurchRep Ordering
+instance ChurchRep [a]
+instance ChurchRep ()
+instance ChurchRep ((,) a b)	 
+instance ChurchRep ((,,) a b c)	 
+instance ChurchRep ((,,,) a b c d)	 
+instance ChurchRep ((,,,,) a b c d e)	 
+instance ChurchRep ((,,,,,) a b c d e f)	 
+instance ChurchRep ((,,,,,,) a b c d e f g)	 
+instance ChurchRep (Maybe a)
+instance ChurchRep (Either a b)
