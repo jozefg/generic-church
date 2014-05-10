@@ -19,7 +19,7 @@
 -- >>> fromChurch (\foo bar baz -> bar) :: MyType
 -- Bar
 
-module Data.Church (Church, ChurchRep(toChurch, fromChurch)) where
+module Data.Church (Church, ChurchRep(toChurch, fromChurch), toChurchP, fromChurchP) where
 
 import Data.Church.Internal.ToChurch
 import Data.Church.Internal.FromChurch
@@ -79,13 +79,17 @@ class ChurchRep a where
                        GChurchSum (ToList (StripMeta (Rep a ())) (ListTerm ())) r) =>
                   Proxy r -> a -> Church a r
   toChurchHelper p = elim p
-                     . flip toList (ListTerm :: ListTerm ())
-                     . Just
-                     . stripMeta . from'
+                . flip toList (ListTerm :: ListTerm ())
+                . Just
+                . stripMeta . from'
     where from' :: Generic a => a -> Rep a ()
           from' = from
 
+toChurchP :: ChurchRep a => Proxy r -> a -> Church a r
+toChurchP = toChurchHelper
 
+fromChurchP :: ChurchRep a => Proxy a -> Church a (Rep a ()) -> a
+fromChurchP Proxy = fromChurch
 
 -- And now a ton of instances
 instance ChurchRep Bool	 
