@@ -1,5 +1,5 @@
 name:                generic-church
-version:             0.1.0.2
+version:             0.2.0.0
 synopsis:            Automatically convert Generic instances to and from church representations
 description:         This package provides a type to generically construct the type of the church
                      representation.
