@@ -97,11 +97,15 @@ toChurchP = toChurchHelper
 fromChurchP :: ChurchRep a => Proxy a -> Church a (Rep a ()) -> a
 fromChurchP Proxy = fromChurch
 
+-- | Since types with the same church representation are
+-- identical, we can cast between them.
 churchCast :: forall a b. (ChurchRep a, ChurchRep b,
                            Church a (Rep b ()) ~ Church b (Rep b ()))
               => a -> b
 churchCast = fromChurchP (Proxy :: Proxy b) . toChurchP (Proxy :: Proxy (Rep b ()))
 
+-- | A more explicit version of @churchCast@ that let's you specify
+-- the target of the cast with a @Proxy@.
 churchCastP :: forall a b. (ChurchRep a, ChurchRep b,
                            Church a (Rep b ()) ~ Church b (Rep b ()))
               => Proxy b -> a -> b
