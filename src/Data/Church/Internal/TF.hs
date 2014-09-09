@@ -4,6 +4,9 @@ module Data.Church.Internal.TF where
 import GHC.Generics
 import Data.Proxy
 
+reproxy :: Proxy k -> Proxy k'
+reproxy Proxy = Proxy
+
 -- | This is isomorphic to @()@ with a more interesting
 -- kind. It's used to annotate the end of pseudolists formed
 -- by combining @:*:@ and @:+:@'s.
@@ -72,7 +75,7 @@ type family Append (xs :: [k]) (ys :: [k]) :: [k]
 type instance Append '[] ys = ys
 type instance Append (x ': xs) ys = x ': Append xs ys
 
--- | Reverse for type level lists                      
+-- | Reverse for type level lists
 type family Reverse (xs :: [k]) :: [k]
 type instance Reverse '[] = '[]
 type instance Reverse (x ': xs) = Append (Reverse xs) (x ': '[])

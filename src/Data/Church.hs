@@ -1,5 +1,5 @@
 {-# LANGUAGE ScopedTypeVariables, FlexibleContexts, DataKinds #-}
-{-# LANGUAGE DefaultSignatures                                #-}
+{-# LANGUAGE DefaultSignatures, AllowAmbiguousTypes           #-}
 -- |   This module provides two functions, @'toChurch'@ and @'fromChurch'@. These form
 --   an isomorphism between a type and its church representation of a type
 --  To use this, simply define an empty instance of @'ChurchRep'@ for a type with a
@@ -8,18 +8,18 @@
 -- >  {-# LANGUAGE DeriveGeneric #-}
 -- >  data MyType = Foo Int Bool | Bar | Baz Char
 -- >              deriving(Generic, Show)
--- > 
+-- >
 -- >  instance ChurchRep MyType
--- 
+--
 --  Then if we fire up GHCi
--- 
+--
 -- >>>  toChurch (Foo 1 True) (\int bool -> int + 1) 0 (const 1)
 -- 2
--- 
+--
 -- >>> fromChurch (\foo bar baz -> bar) :: MyType
 -- Bar
 
-module Data.Church (Church, ChurchRep(toChurch, fromChurch), toChurchP, fromChurchP) where
+module Data.Church (Church, {- ChurchRep(toChurch, fromChurch),-} toChurchP, fromChurchP) where
 
 import Data.Church.Internal.ToChurch
 import Data.Church.Internal.FromChurch
@@ -30,23 +30,23 @@ import GHC.Generics
 -- | This is the central type for this package. Unfortunately, it's
 -- built around type families so it's not so easy to read. A helpful
 -- algorithm for figuring out what the 'Church' of a type @Foo@ is,
--- 
+--
 --      1. For each constructor, write out its type signature
--- 
+--
 --      2. Replace the @Foo@ at the end of each signature with @c@
--- 
+--
 --      3. Join these type signatures together with arrows @(a -> b -> c) -> c -> ...@
--- 
+--
 --      4. Append a final @ -> c@ to the end of this
--- 
+--
 -- For example, for 'Maybe'
--- 
+--
 --   1. @'Nothing' :: Maybe a@ and @'Just' :: a -> Maybe a@.
--- 
+--
 --   2. We then have @c@ and @a -> c@.
--- 
+--
 --   3. Joining these gives @c -> (a -> c)@
--- 
+--
 --   4. @c -> (a -> c) -> c@ is our church representation
 type Church t c = ChurchSum (ToList (StripMeta (Rep t ())) (ListTerm ())) c
 
@@ -81,7 +81,8 @@ class ChurchRep a where
   toChurchHelper p = elim p
                 . flip toList (ListTerm :: ListTerm ())
                 . Just
-                . stripMeta . from'
+                . stripMeta
+                . from'
     where from' :: Generic a => a -> Rep a ()
           from' = from
 
@@ -92,15 +93,15 @@ fromChurchP :: ChurchRep a => Proxy a -> Church a (Rep a ()) -> a
 fromChurchP Proxy = fromChurch
 
 -- And now a ton of instances
-instance ChurchRep Bool	 
+instance ChurchRep Bool
 instance ChurchRep Ordering
 instance ChurchRep [a]
 instance ChurchRep ()
-instance ChurchRep ((,) a b)	 
-instance ChurchRep ((,,) a b c)	 
-instance ChurchRep ((,,,) a b c d)	 
-instance ChurchRep ((,,,,) a b c d e)	 
-instance ChurchRep ((,,,,,) a b c d e f)	 
-instance ChurchRep ((,,,,,,) a b c d e f g)	 
+instance ChurchRep ((,) a b)
+instance ChurchRep ((,,) a b c)
+instance ChurchRep ((,,,) a b c d)
+instance ChurchRep ((,,,,) a b c d e)
+instance ChurchRep ((,,,,,) a b c d e f)
+instance ChurchRep ((,,,,,,) a b c d e f g)
 instance ChurchRep (Maybe a)
 instance ChurchRep (Either a b)
