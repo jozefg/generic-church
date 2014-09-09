@@ -1,5 +1,5 @@
-{-# LANGUAGE ScopedTypeVariables, FlexibleContexts, DataKinds #-}
-{-# LANGUAGE DefaultSignatures, AllowAmbiguousTypes           #-}
+{-# LANGUAGE ScopedTypeVariables, FlexibleContexts, DataKinds     #-}
+{-# LANGUAGE DefaultSignatures, AllowAmbiguousTypes, TypeFamilies #-}
 -- |   This module provides two functions, @'toChurch'@ and @'fromChurch'@. These form
 --   an isomorphism between a type and its church representation of a type
 --  To use this, simply define an empty instance of @'ChurchRep'@ for a type with a
@@ -19,7 +19,12 @@
 -- >>> fromChurch (\foo bar baz -> bar) :: MyType
 -- Bar
 
-module Data.Church (Church, {- ChurchRep(toChurch, fromChurch),-} toChurchP, fromChurchP) where
+module Data.Church (Church,
+                    ChurchRep(toChurch, fromChurch),
+                    toChurchP,
+                    fromChurchP,
+                    churchCast,
+                    churchCastP) where
 
 import Data.Church.Internal.ToChurch
 import Data.Church.Internal.FromChurch
@@ -91,6 +96,16 @@ toChurchP = toChurchHelper
 
 fromChurchP :: ChurchRep a => Proxy a -> Church a (Rep a ()) -> a
 fromChurchP Proxy = fromChurch
+
+churchCast :: forall a b. (ChurchRep a, ChurchRep b,
+                           Church a (Rep b ()) ~ Church b (Rep b ()))
+              => a -> b
+churchCast = fromChurchP (Proxy :: Proxy b) . toChurchP (Proxy :: Proxy (Rep b ()))
+
+churchCastP :: forall a b. (ChurchRep a, ChurchRep b,
+                           Church a (Rep b ()) ~ Church b (Rep b ()))
+              => Proxy b -> a -> b
+churchCastP Proxy = churchCast
 
 -- And now a ton of instances
 instance ChurchRep Bool
