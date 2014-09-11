@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables, FlexibleContexts, DataKinds     #-}
 {-# LANGUAGE DefaultSignatures, AllowAmbiguousTypes, TypeFamilies #-}
--- |   This module provides two functions, @'toChurch'@ and @'fromChurch'@. These form
+-- |   This module provides core two functions, @'toChurch'@ and @'fromChurch'@. These form
 --   an isomorphism between a type and its church representation of a type
 --  To use this, simply define an empty instance of @'ChurchRep'@ for a type with a
 --  'Generic' instance and defaulting magic will take care of the rest. For example
