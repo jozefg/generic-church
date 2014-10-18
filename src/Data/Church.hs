@@ -1,5 +1,5 @@
 {-# LANGUAGE ScopedTypeVariables, FlexibleContexts, DataKinds     #-}
-{-# LANGUAGE DefaultSignatures, AllowAmbiguousTypes, TypeFamilies #-}
+{-# LANGUAGE DefaultSignatures, TypeFamilies #-}
 -- |   This module provides core two functions, @'toChurch'@ and @'fromChurch'@. These form
 --   an isomorphism between a type and its church representation of a type
 --  To use this, simply define an empty instance of @'ChurchRep'@ for a type with a
@@ -21,7 +21,6 @@
 
 module Data.Church (Church,
                     ChurchRep(toChurch, fromChurch),
-                    toChurchP,
                     fromChurchP,
                     churchCast,
                     churchCastP) where
@@ -57,8 +56,8 @@ type Church t c = ChurchSum (ToList (StripMeta (Rep t ())) (ListTerm ())) c
 
 class ChurchRep a where
   -- | Reify a type to its church representation
-  toChurch :: forall r. ChurchRep a => a -> Church a r
-  toChurch = toChurchHelper (Proxy :: Proxy r)
+  toChurch :: forall r. ChurchRep a => Proxy r -> a -> Church a r
+  toChurch p = toChurchHelper p
 
   -- | Create a value from its church representation.
   -- This method may require an explicit signature.
@@ -91,9 +90,6 @@ class ChurchRep a where
     where from' :: Generic a => a -> Rep a ()
           from' = from
 
-toChurchP :: ChurchRep a => Proxy r -> a -> Church a r
-toChurchP = toChurchHelper
-
 fromChurchP :: ChurchRep a => Proxy a -> Church a (Rep a ()) -> a
 fromChurchP Proxy = fromChurch
 
@@ -102,7 +98,7 @@ fromChurchP Proxy = fromChurch
 churchCast :: forall a b. (ChurchRep a, ChurchRep b,
                            Church a (Rep b ()) ~ Church b (Rep b ()))
               => a -> b
-churchCast = fromChurchP (Proxy :: Proxy b) . toChurchP (Proxy :: Proxy (Rep b ()))
+churchCast = fromChurchP (Proxy :: Proxy b) . toChurch (Proxy :: Proxy (Rep b ()))
 
 -- | A more explicit version of @churchCast@ that let's you specify
 -- the target of the cast with a @Proxy@.
